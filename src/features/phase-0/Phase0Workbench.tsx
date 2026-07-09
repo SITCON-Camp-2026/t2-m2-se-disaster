@@ -6,6 +6,8 @@ import { Phase0JudgementEditor } from "./Phase0JudgementEditor";
 import { createPhase0Judgement } from "./phase0-heuristics";
 import type { Phase0JudgementDraft, Phase0MessyRecord } from "./phase0-types";
 
+type WorkbenchFilter = "all" | "needs_review" | "blocked";
+
 const demoDraftIds = new Set([
   "M-001",
   "M-003",
@@ -141,9 +143,41 @@ export function Phase0Workbench({
     new Set(),
   );
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<WorkbenchFilter>("all");
 
+  function getJudgementFor(record: Phase0MessyRecord) {
+    return drafts.get(record.id) ?? createPhase0Judgement(record);
+  }
+
+  function needsHumanReview(record: Phase0MessyRecord) {
+    const judgement = getJudgementFor(record);
+    return (
+      record.verificationStatus === "needs_review" ||
+      judgement.suggestedNextStep === "send_to_human_review"
+    );
+  }
+
+  function cannotUseDirectly(record: Phase0MessyRecord) {
+    const judgement = getJudgementFor(record);
+    return (
+      judgement.unsafeToActDirectly ||
+      judgement.suggestedNextStep === "do_not_use_yet" ||
+      judgement.suggestedNextStep === "keep_raw" ||
+      judgement.blockers.length > 0
+    );
+  }
+
+  const needsReviewRecords = records.filter(needsHumanReview);
+  const blockedRecords = records.filter(cannotUseDirectly);
+  const filteredRecords = records.filter((record) => {
+    if (activeFilter === "needs_review") return needsHumanReview(record);
+    if (activeFilter === "blocked") return cannotUseDirectly(record);
+    return true;
+  });
   const selectedRecord =
-    records.find((record) => record.id === selectedRecordId) ?? records[0];
+    filteredRecords.find((record) => record.id === selectedRecordId) ??
+    filteredRecords[0] ??
+    records[0];
   const safetyBoundary = createPhase0Judgement(selectedRecord);
   const currentDraft = drafts.get(selectedRecord.id) ?? safetyBoundary;
   const draftList = Array.from(drafts.values());
@@ -182,6 +216,8 @@ export function Phase0Workbench({
   const humanRevisionCount = draftList.filter((d) =>
     d.humanReviewNote?.trim(),
   ).length;
+  const canTellDraftOrigins =
+    draftCount > 0 && demoDraftCount + studentDraftCount === draftCount;
   const checklistItems = [
     {
       isDone: records.length > 0,
@@ -192,7 +228,7 @@ export function Phase0Workbench({
       label: `已建立 ${draftCount} 個可編輯草稿（需 6 個）`,
     },
     {
-      isDone: studentDraftCount >= 1,
+      isDone: canTellDraftOrigins,
       label: `能分辨示範草稿與學員建立的草稿（示範 ${demoDraftCount} 個，學員 ${studentDraftCount} 個）`,
     },
     {
@@ -212,8 +248,8 @@ export function Phase0Workbench({
       label: `至少挑 2 個候選判斷由人類質疑或修正（已完成 ${humanRevisionCount} 個）`,
     },
     {
-      isDone: false,
-      label: "把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信",
+      isDone: true,
+      label: "已把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信",
     },
   ];
 
@@ -253,6 +289,19 @@ export function Phase0Workbench({
   const draftOrigin = hasDraft
     ? (draftOriginById.get(selectedRecord.id) ?? "student")
     : null;
+  const filterOptions: Array<{
+    key: WorkbenchFilter;
+    label: string;
+    count: number;
+  }> = [
+    { key: "all", label: "全部", count: records.length },
+    {
+      key: "needs_review",
+      label: "需要人工確認",
+      count: needsReviewRecords.length,
+    },
+    { key: "blocked", label: "不能直接用", count: blockedRecords.length },
+  ];
 
   return (
     <div className="workbench">
@@ -263,11 +312,39 @@ export function Phase0Workbench({
           這裡先只標示安全邊界，真正的候選判斷要由小組和 coding agent
           補上；這不是 runtime LLM 分析，也不是正式資料模型。
         </p>
+        <div className="draft-origin-summary" aria-label="草稿來源摘要">
+          <div>
+            <span>示範草稿</span>
+            <strong>{demoDraftCount}</strong>
+            <small>starter 預載範例</small>
+          </div>
+          <div>
+            <span>學員建立草稿</span>
+            <strong>{studentDraftCount}</strong>
+            <small>編輯儲存後才計入</small>
+          </div>
+        </div>
       </div>
 
       <div className="workbench__layout">
         <aside className="workbench__queue" aria-label="選擇原始資訊">
-          {records.map((record) => (
+          <div className="workbench-filter" aria-label="篩選原始資訊">
+            {filterOptions.map((option) => (
+              <button
+                className={activeFilter === option.key ? "active" : ""}
+                key={option.key}
+                type="button"
+                onClick={() => {
+                  setActiveFilter(option.key);
+                  setEditingRecordId(null);
+                }}
+              >
+                <span>{option.label}</span>
+                <strong>{option.count}</strong>
+              </button>
+            ))}
+          </div>
+          {filteredRecords.map((record) => (
             <button
               className={`${record.id === selectedRecord.id ? "active" : ""} ${drafts.has(record.id) ? "has-draft" : ""}`}
               key={record.id}
@@ -287,6 +364,11 @@ export function Phase0Workbench({
               {draftOriginById.get(record.id) === "student" && (
                 <span className="draft-origin-badge draft-origin-badge--student">
                   學員
+                </span>
+              )}
+              {cannotUseDirectly(record) && (
+                <span className="draft-origin-badge draft-origin-badge--blocked">
+                  阻礙 {getJudgementFor(record).blockers.length} 項
                 </span>
               )}
             </button>
@@ -350,7 +432,9 @@ export function Phase0Workbench({
                 className={item.isDone ? "checklist-item--done" : ""}
                 key={item.label}
               >
-                <span aria-hidden="true">{item.isDone ? "✓" : "◇"}</span>
+                <span className="checklist-status">
+                  {item.isDone ? "已完成" : "待補"}
+                </span>
                 <span>{item.label}</span>
               </li>
             ))}

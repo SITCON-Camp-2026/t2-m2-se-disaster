@@ -31,6 +31,20 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("opens the phase 0 workbench by default", () => {
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: "整理工作台" })).toHaveClass(
+      "active",
+    );
+    expect(
+      screen.getByText(
+        "第一階段的成功不是分類正確，而是把為什麼現在還不能判斷說清楚。",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("學員建立草稿")).toBeInTheDocument();
+  });
+
   it("shows review states in the phase 0 workbench", () => {
     render(<App />);
 
@@ -63,7 +77,56 @@ describe("App", () => {
     expect(
       screen.getByRole("button", { name: /編輯草稿/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText("示範草稿")).toBeInTheDocument();
+    expect(screen.getAllByText("示範草稿").length).toBeGreaterThan(0);
+    expect(screen.getByText("學員建立草稿")).toBeInTheDocument();
+    expect(screen.getByText("starter 預載範例")).toBeInTheDocument();
+    expect(screen.getByText("編輯儲存後才計入")).toBeInTheDocument();
+
+    const draftOriginChecklist = screen.getByText(
+      "能分辨示範草稿與學員建立的草稿（示範 6 個，學員 0 個）",
+    );
+    expect(draftOriginChecklist.closest("li")).toHaveClass(
+      "checklist-item--done",
+    );
+    expect(draftOriginChecklist.closest("li")).toHaveTextContent("已完成");
+  });
+
+  it("filters the workbench queue by review needs and blocked records", () => {
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: /全部/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /需要人工確認/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /不能直接用/ }),
+    ).toBeInTheDocument();
+
+    const needsReviewFilter = screen.getByRole("button", {
+      name: /需要人工確認/,
+    });
+    fireEvent.click(needsReviewFilter);
+    expect(needsReviewFilter).toHaveClass("active");
+    expect(screen.getAllByText("M-001").length).toBeGreaterThan(0);
+
+    const blockedFilter = screen.getByRole("button", { name: /不能直接用/ });
+    fireEvent.click(blockedFilter);
+    expect(blockedFilter).toHaveClass("active");
+    expect(screen.queryByText("M-010")).not.toBeInTheDocument();
+    expect(screen.getAllByText(/阻礙 \d+ 項/).length).toBeGreaterThan(0);
+  });
+
+  it("shows a blocker summary on the judgement card", () => {
+    render(<App />);
+
+    const riskSummary = screen.getByLabelText("草稿阻礙摘要");
+
+    expect(riskSummary).toHaveTextContent("阻礙");
+    expect(riskSummary).toHaveTextContent("3 項");
+    expect(riskSummary).toHaveTextContent("直接行動");
+    expect(riskSummary).toHaveTextContent("不可直接行動");
+    expect(riskSummary).toHaveTextContent("人工筆記");
+    expect(riskSummary).toHaveTextContent("有紀錄");
   });
 
   it("marks an edited demo draft as a student draft", () => {
@@ -94,6 +157,13 @@ describe("App", () => {
         "至少標示 3 個「為什麼不能直接變成任務」（已完成 3 個）",
       ),
     ).toBeInTheDocument();
+    const observationChecklist = screen.getByText(
+      "已把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信",
+    );
+    expect(observationChecklist.closest("li")).toHaveClass(
+      "checklist-item--done",
+    );
+    expect(observationChecklist.closest("li")).toHaveTextContent("已完成");
 
     fireEvent.click(screen.getByRole("button", { name: "刪除草稿" }));
 

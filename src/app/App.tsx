@@ -15,7 +15,7 @@ const tabs: Array<{ key: TabKey; label: string }> = [
 const phase0Records = messyReports satisfies Phase0MessyRecord[];
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<TabKey>("raw");
+  const [activeTab, setActiveTab] = useState<TabKey>("workbench");
   const [selectedRecordId, setSelectedRecordId] = useState(
     phase0Records[0]?.id ?? "",
   );

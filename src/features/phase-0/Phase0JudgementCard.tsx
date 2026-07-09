@@ -68,6 +68,9 @@ export function Phase0JudgementCard({
       : "這張卡顯示目前由學員建立或修正的整理草稿，仍然不是已確認資料。請保留人類檢查，避免把候選判斷當成正式行動依據。"
     : "這張卡只保留保守的安全邊界，不是 agent 對這筆資料的整理答案。請建立整理草稿，記錄可以看出的資訊與還不能判斷的地方。";
   const evidenceTitle = hasDraft ? "目前整理依據" : "目前只有安全預設";
+  const directActionLabel = judgement.unsafeToActDirectly
+    ? "不可直接行動"
+    : "仍需確認情境";
 
   return (
     <article
@@ -89,6 +92,21 @@ export function Phase0JudgementCard({
 
       <p>{description}</p>
 
+      <div className="draft-risk-summary" aria-label="草稿阻礙摘要">
+        <div>
+          <span>阻礙</span>
+          <strong>{judgement.blockers.length} 項</strong>
+        </div>
+        <div>
+          <span>直接行動</span>
+          <strong>{directActionLabel}</strong>
+        </div>
+        <div>
+          <span>人工筆記</span>
+          <strong>{judgement.humanReviewNote ? "有紀錄" : "待補"}</strong>
+        </div>
+      </div>
+
       <dl className="judgement-summary">
         <div>
           <dt>候選類型</dt>
@@ -106,9 +124,7 @@ export function Phase0JudgementCard({
 
       <p>
         能否直接行動：
-        <strong>
-          {judgement.unsafeToActDirectly ? "不可直接行動" : "仍需確認情境"}
-        </strong>
+        <strong>{directActionLabel}</strong>
       </p>
 
       <section className="blockers-section">
