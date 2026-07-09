@@ -9,7 +9,7 @@ const labels: Record<string, string> = {
 
 export function SourceLabel({ sourceType }: { sourceType: string }) {
   return (
-    <span className="source-label">
+    <span className={`source-label source-${sourceType}`}>
       來源：{labels[sourceType] ?? sourceType}
     </span>
   );

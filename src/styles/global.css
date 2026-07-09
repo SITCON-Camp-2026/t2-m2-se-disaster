@@ -295,6 +295,37 @@ button {
   color: #245d9d;
 }
 
+/* Source type colors */
+.source-field_report {
+  background: #e6f4ea;
+  color: #0d652d;
+}
+
+.source-phone_call {
+  background: #fce5cd;
+  color: #963b1d;
+}
+
+.source-social_post {
+  background: #f3e5f5;
+  color: #4a148c;
+}
+
+.source-official_notice {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.source-volunteer_update {
+  background: #e0f2f1;
+  color: #004d40;
+}
+
+.source-mock {
+  background: #f5f5f5;
+  color: #424242;
+}
+
 .empty-state,
 .error-state {
   border-radius: 8px;
@@ -310,6 +341,111 @@ button {
 .error-state {
   background: #fde2e1;
   color: #9f1f17;
+}
+
+.judgement-editor {
+  border: 1px solid #dbe4ef;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fbfcfe;
+  display: grid;
+  gap: 16px;
+}
+
+.editor__section {
+  display: grid;
+  gap: 8px;
+}
+
+.editor__section label {
+  display: grid;
+  gap: 6px;
+}
+
+.label-text {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.editor__section select,
+.editor__section textarea {
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  padding: 10px;
+  font: inherit;
+  background: white;
+}
+
+.editor__section textarea {
+  font-family:
+    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 0.9rem;
+}
+
+.editor__section input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+.editor__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.judgement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #dbe4ef;
+}
+
+.btn-primary,
+.btn-secondary {
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  padding: 10px 16px;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary {
+  border-color: #245d9d;
+  background: #245d9d;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1e4976;
+}
+
+.btn-secondary {
+  border-color: #cfd8e3;
+  background: #ffffff;
+  color: #17202a;
+}
+
+.btn-secondary:hover {
+  background: #f4f7fb;
+}
+
+.workbench__queue button.has-draft {
+  border-left: 3px solid #4caf50;
+}
+
+.draft-indicator {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4caf50;
+  color: white;
+  font-size: 0.8rem;
+  line-height: 20px;
+  text-align: center;
 }
 
 @media (max-width: 860px) {
