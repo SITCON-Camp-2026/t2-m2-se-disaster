@@ -38,6 +38,7 @@
 | 2026-07-09       | Phase 0    | 微調未查核顏色                                   | 將 `unverified` badge 從偏紫改成偏藍                                                                        | 採用        | 維持未確認語意，讓它和待人工確認的橘色更容易區分                                                                         | `src/styles/global.css`                                                                    |
 | 2026-07-09       | Phase 0    | 區分草稿來源                                     | 將預載內容標為示範草稿，學員儲存後標為學員建立的草稿                                                        | 採用        | 示範草稿只是學習範例，不應和學員實際修正的草稿混在一起                                                                   | `src/features/phase-0/Phase0Workbench.tsx`, `src/features/phase-0/Phase0JudgementCard.tsx` |
 | 2026-07-09 13:52 | Release 01 | 使用訪談 kit 產生三個 persona 回饋與需求取捨草稿 | 依 `release-packs/01-interview-kit/` 模擬回報者、資訊整理者、行動者，整理出共同風險、需求衝突與 v1 暫定取捨 | 部分採用    | 採用「候選判斷可能被誤讀成已確認」與「來源類型不等於可信度」；拒絕讓 AI 判斷是否可以出發或派工，因為這會變成真實救災決策 | `docs/interview-notes.md`, `docs/interview-summary.md`, `docs/decisions.md`                |
+| 2026-07-09 16:23 | Release 02 | 使用 flow design kit 產生 v1 流程圖              | 依「填寫資訊」與「等待審核」方向產生回報者流程，補上人工確認點、不能自動處理分支與 Mermaid 流程圖           | 部分採用    | 採用等待人工審核與不能直接變成任務；保留主要使用者是否從資訊整理者改成回報者的待確認註記                                 | `docs/flow.md`, `docs/decisions.md`                                                        |
 
 ## 課後反思
 
