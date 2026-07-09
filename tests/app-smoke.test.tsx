@@ -89,6 +89,14 @@ describe("App", () => {
       "checklist-item--done",
     );
     expect(draftOriginChecklist.closest("li")).toHaveTextContent("已完成");
+    expect(screen.getAllByText("人類修正").length).toBeGreaterThan(0);
+
+    const humanRevisionChecklist = screen.getByText(
+      "已在左側清單標示人類修正紀錄（已標示 6 個）",
+    );
+    expect(humanRevisionChecklist.closest("li")).toHaveClass(
+      "checklist-item--done",
+    );
   });
 
   it("filters the workbench queue by review needs and blocked records", () => {

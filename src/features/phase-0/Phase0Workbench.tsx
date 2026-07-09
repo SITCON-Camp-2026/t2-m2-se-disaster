@@ -167,6 +167,10 @@ export function Phase0Workbench({
     );
   }
 
+  function hasHumanRevision(record: Phase0MessyRecord) {
+    return Boolean(getJudgementFor(record).humanReviewNote?.trim());
+  }
+
   const needsReviewRecords = records.filter(needsHumanReview);
   const blockedRecords = records.filter(cannotUseDirectly);
   const filteredRecords = records.filter((record) => {
@@ -246,6 +250,10 @@ export function Phase0Workbench({
     {
       isDone: humanRevisionCount >= 2,
       label: `至少挑 2 個候選判斷由人類質疑或修正（已完成 ${humanRevisionCount} 個）`,
+    },
+    {
+      isDone: humanRevisionCount >= 2,
+      label: `已在左側清單標示人類修正紀錄（已標示 ${humanRevisionCount} 個）`,
     },
     {
       isDone: true,
@@ -364,6 +372,11 @@ export function Phase0Workbench({
               {draftOriginById.get(record.id) === "student" && (
                 <span className="draft-origin-badge draft-origin-badge--student">
                   學員
+                </span>
+              )}
+              {hasHumanRevision(record) && (
+                <span className="draft-origin-badge draft-origin-badge--human">
+                  人類修正
                 </span>
               )}
               {cannotUseDirectly(record) && (

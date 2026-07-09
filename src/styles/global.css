@@ -813,6 +813,11 @@ button {
   color: #116b37;
 }
 
+.draft-origin-badge--human {
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .draft-origin-badge--blocked {
   background: #ffebee;
   color: #c62828;
