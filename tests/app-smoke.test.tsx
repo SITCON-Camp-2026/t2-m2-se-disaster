@@ -45,17 +45,65 @@ describe("App", () => {
     expect(screen.getAllByText("未查核").length).toBeGreaterThan(0);
   });
 
+  it("uses distinct status classes for review and unverified records", () => {
+    render(<App />);
+
+    expect(screen.getAllByText("待人工確認")[0]).toHaveClass(
+      "status-needs_review",
+    );
+    expect(screen.getAllByText("未查核")[0]).toHaveClass("status-unverified");
+  });
+
   it("has draft CRUD features for Phase 0 editing", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
 
-    // Should have option to create draft
+    // Should have demo drafts pre-loaded
     expect(
-      screen.getByRole("button", { name: /建立草稿/ }),
+      screen.getByRole("button", { name: /編輯草稿/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("示範草稿")).toBeInTheDocument();
+  });
+
+  it("marks an edited demo draft as a student draft", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+    fireEvent.click(screen.getByRole("button", { name: "儲存草稿" }));
+
+    expect(screen.getByText("學員建立的草稿")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "能分辨示範草稿與學員建立的草稿（示範 5 個，學員 1 個）",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("updates the Phase 0 checklist when drafts change", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
+
+    expect(
+      screen.getByText("已建立 6 個可編輯草稿（需 6 個）"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "至少標示 3 個「為什麼不能直接變成任務」（已完成 3 個）",
+      ),
     ).toBeInTheDocument();
 
-    // Should display the judgement card
-    expect(screen.getByText("尚未建立整理草稿")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "刪除草稿" }));
+
+    expect(
+      screen.getByText("已建立 5 個可編輯草稿（需 6 個）"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "至少標示 3 個「為什麼不能直接變成任務」（已完成 2 個）",
+      ),
+    ).toBeInTheDocument();
   });
 });

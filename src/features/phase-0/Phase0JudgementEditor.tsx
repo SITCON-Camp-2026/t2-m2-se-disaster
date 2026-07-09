@@ -51,6 +51,14 @@ const nextStepLabels: Record<Phase0SuggestedNextStep, string> = {
   do_not_use_yet: "暫時不要使用",
 };
 
+// Records with privacy concerns
+const privacySensitiveRecords = new Set(["M-011", "M-012"]);
+
+const privacyWarnings: Record<string, string> = {
+  "M-011": "⚠️ 涉及個人位置與年長者隱私",
+  "M-012": "⚠️ 涉及患者隱私與個人健康資訊",
+};
+
 export function Phase0JudgementEditor({
   record,
   initialDraft,
@@ -101,8 +109,17 @@ export function Phase0JudgementEditor({
     onSave(updatedDraft);
   }
 
+  const isPrivacySensitive = privacySensitiveRecords.has(record.id);
+
   return (
-    <form className="judgement-editor">
+    <form
+      className={`judgement-editor ${isPrivacySensitive ? "form--privacy-alert" : ""}`}
+    >
+      {isPrivacySensitive && (
+        <div className="privacy-warning-banner">
+          {privacyWarnings[record.id]}
+        </div>
+      )}
       <div className="editor__section">
         <label>
           <span className="label-text">候選類型</span>
@@ -169,12 +186,15 @@ export function Phase0JudgementEditor({
 
       <div className="editor__section">
         <label>
-          <span className="label-text">阻礙因素（一行一項）</span>
+          <span className="label-text">
+            ⚠️ 阻礙因素（一行一項）— 為什麼不能直接用
+          </span>
           <textarea
             value={blockersText}
             onChange={(e) => setBlockersText(e.target.value)}
             placeholder="例：位置資訊不足&#10;例：無法確認當事人意願"
             rows={4}
+            className="textarea--alert"
           />
         </label>
       </div>
